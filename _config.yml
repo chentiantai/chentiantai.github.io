@@ -1,0 +1,32 @@
+# Permalinks
+permalink:           pretty
+
+# Setup
+title:               云计算闲谈
+tagline:             陈江博客
+#url:                 http://getpoole.com
+paginate:            5
+baseurl:             ""
+
+# Assets
+#
+# We specify the directory for Jekyll so we can use @imports.
+sass:
+  sass_dir:          _sass
+  style:            :compressed
+
+# About/contact
+author:
+  name:              陈江
+  url:               https://www.zhihu.com/people/chen-jiang-63
+  email:             chenjiang1985@qq.com
+
+# Custom vars
+version:             2.0.0
+github:
+  repo:              https://github.com/chentiantai/chentiantai.github.io
+
+# Gems
+plugins:
+  - jekyll-paginate
+  - jekyll-gist
