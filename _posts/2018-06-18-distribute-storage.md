@@ -96,15 +96,15 @@ posix语意接口太少，不提供append语意（其实是通过覆盖写提供
 
 #   NAS
 ![nas](img/nas_streaming.png). 
-## 数据流
-用户通过mount目录访问共享文件，mount点挂在的是一个NFS协议的文件系统，会通过tcp访问到NFS server
-NFS server内嵌了DFS client，最终会访问到我们后端的存储系统
+
+用户通过mount目录访问共享文件，mount点挂在的是一个NFS协议的文件系统，会通过tcp访问到NFS server  
+NFS server是一个代理，通过libcfs最终会访问到我们后端的存储系统
 
 ## 后端存储系统
 ![nas](img/nas-ds.png)
 DS包含管理inode的metastore和datastore
 ### metastore
-Metastore可基于分布式数据库（newsql），回想一下bigtable，一个用户的文件散落在多个tabletserver上，允许用户挂tabletserver rename操作，所以需要分布式事务完成上述操作，出于对DFS改进，我们把目录树持久化
+我们充分吸取业界DFS缺点，解决Namenode集中式server瓶颈，充分考虑bigtable的各种优点。Metastore可基于分布式数据库（newsql），回想一下bigtable，一个用户的文件散落在多个tabletserver上，允许用户跨tabletserver rename操作，所以需要分布式事务完成上述保证，出于对DFS改进，我们把目录树持久化
 模仿linux fs dentry管理，映射规则如下
 两张表，dentry表和inode表，dentry表描述目录树，inode表描述文件block列表及atime，mtime，uid，gid等源信息，一般来讲硬链够用，该场景下dentry可以多份，共同指向一个inode。  dentry通过外健关联到inode表
 
@@ -145,7 +145,9 @@ vfs层 dentry lookup每个层级目录会发起rpc，延时高。
 | 性能 | 高 | 中等 | 高 |  
 | 元数据 | 少量 | 大量 | 中等 |  
 | 适用场景 | 交易型数据 | 相对静止（static）的数据 | 共享的文件 |  
-| 最大优点 | 高性能 | 可扩展性强、分布式使用 | 相对简化地管理 |  
+| 最大优点 | 高性能 | 可扩展性强、分布式使用 | 相对简化地管理 |
+
+最后只差个写代码，实现上述产品了:)  
 
 
 
