@@ -2,8 +2,8 @@
 permalink:           pretty
 
 # Setup
-title:               云计算闲谈
-tagline:             陈江博客
+title:               聚沙成塔
+tagline:             陈江的专栏，云计算
 #url:                 http://getpoole.com
 paginate:            5
 baseurl:             ""
