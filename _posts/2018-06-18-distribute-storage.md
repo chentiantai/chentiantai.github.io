@@ -83,7 +83,7 @@ posix语意接口太少，不提供append语意（其实是通过覆盖写提供
 
 ## IO路径
 块设备上层会有文件系统，经过io调度算法，合并io操作，isici协议发出的IO请求的都是对扇区LBA的操作，所以可以简单抽象成对于卷id加上偏移的操作，我们简单讲讲EBS（Elastic Block Store）层IO路径
-1. 网络发出来的IO请求是针对volume+offerset操作，假定是个写清秋
+1. 网络发出来的IO请求是针对volume+offerset操作，假定是个写请求
 2. 通过blockManager查找到逻辑block
 3. 在内存中找到block对应的物理地址（ip+port），block的replicationGroup
 4. 使用业界通用复制链方式如raft协议向replicationGroup发送io请求，raft帮我们解决写时失败tuncate问题
@@ -147,7 +147,7 @@ vfs层 dentry lookup每个层级目录会发起rpc，延时高。
 | 适用场景 | 交易型数据 | 相对静止（static）的数据 | 共享的文件 |  
 | 最大优点 | 高性能 | 可扩展性强、分布式使用 | 相对简化地管理 |
 
-最后只差个写代码，实现上述产品了:)  
+最后只差个写代码了:)  
 
 
 
