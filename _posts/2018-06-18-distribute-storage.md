@@ -7,7 +7,7 @@ title: 云存储产品浅析
 工业界各大厂商很多上层存储产品都重度依赖底层文件系统，我们也捎带说说存储祖师爷DFS。
 
 # Linux IO STACK
-![io_stack](img/io_stack.png)
+![io_stack](/img/io_stack.png)
 云计算本质就是单机计算能力的无限扩展，我们先看看单机的文件及IO管理。
 linux操作系统一个IO操作要经由文件系统vfs，调度算法，块设备层，最终落盘
 * 其中vfs层有具体的NFS/smbfs 支持网络协议派生出来NAS产品
@@ -22,12 +22,12 @@ linux操作系统一个IO操作要经由文件系统vfs，调度算法，块设�
 自己做replication，自己做副本recover，自己做写时recover
 
 # master-slave体系架构
-![master-slave](img/m-s.jpeg)  
+![master-slave](/img/m-s.jpeg)  
 两层索引体系，解决lots of small file
 * 第一层，master维护一个路由表，通过fileurl找到对应slave location（ip+port）
 * 第二层，slave单机索引体系，找到具体的location，读出raw data
 # DFS
-![hdfs](img/hdfs.jpeg)
+![hdfs](/img/hdfs.jpeg)
 
 ## 特点
 丰富类posix语意，特点Append-only存储，不支持pwrite
@@ -40,7 +40,7 @@ linux操作系统一个IO操作要经由文件系统vfs，调度算法，块设�
 ## 演进
 GFS2拆分了namenode，拆分成目录树，blockservice，外加ferdaration，但namespace集中式server缺陷依旧，同时切分image是要停服，水平扩展不是那么友好。
 #   对象存储
-![oss](img/oss.png)
+![oss](/img/oss.png)
 ## 元数据管理
 Blobstorage： blobid->[raw data]  
 Metastore，aws s3又称为keymap，本质上是个kv系统。存储内容file_url->[blobid list]
@@ -51,7 +51,7 @@ Metastore，aws s3又称为keymap，本质上是个kv系统。存储内容file_u
 3. 客户端的代理继续向blobstorage申请一个全局的id，这个id代表了了后端实际node的地址，以及这个node管理的实际物理卷，我们的每个分片数据均等的存在这些物理卷上。
 4. 分发写N份数据，满足安全副本数即可返回写成功，写失败的可延时EC方式修复
 5. httpserver将文件file及对应的分片列表以KV形式写入metastore
-![blob](img/blob-write.png)
+![blob](/img/blob-write.png)
 
 
 ## 特点
@@ -64,7 +64,7 @@ posix语意接口太少，不提供append语意（其实是通过覆盖写提供
 
 ## iscsi模型
 与后端交互的的部分在内核实现，后端target解析iscsi协议并将请求映射到后端分布式存储
-![block](img/block_arch.png)
+![block](/img/block_arch.png)
 
 ## 特点
 1. 绝大多数请求大小是4K对齐的blocksize. 
@@ -77,7 +77,7 @@ posix语意接口太少，不提供append语意（其实是通过覆盖写提供
 4. 产品层面需要预先购买容量，扩容需要重新挂载，跟NAS比容易浪费空间 
 
 ## 实现模型
-![block](img/disk_mapping.png)
+![block](/img/disk_mapping.png)
 
 云盘逻辑卷按block切分，为了便于recover，按1G切分，第一层路由由blockManager管理，按volumeid+offset 映射到逻辑block，逻辑block location在三台blockserver上。Blockserver预先创建一个1G文件（falloc，防止写过程中空间不够)，称为物理block。对于逻辑卷这段区间所有的IO操作都会落到这个物理block文件上，很容易实现pwrite。当然也可以基于裸盘，在os看来是一个大文件，分割成不同的1G文件
 
@@ -95,13 +95,13 @@ posix语意接口太少，不提供append语意（其实是通过覆盖写提供
 *  虚拟磁盘可以切条掉，相当于raid盘思路，单块盘的IO变成多多块盘，增大吞吐
 
 #   NAS
-![nas](img/nas_streaming.png). 
+![nas](/img/nas_streaming.png). 
 
 用户通过mount目录访问共享文件，mount点挂在的是一个NFS协议的文件系统，会通过tcp访问到NFS server  
 NFS server是一个代理，通过libcfs最终会访问到我们后端的存储系统
 
 ## 后端存储系统
-![nas](img/nas-ds.png)
+![nas](/img/nas-ds.png)
 DS包含管理inode的metastore和datastore
 ### metastore
 我们充分吸取业界DFS缺点，解决Namenode集中式server瓶颈，充分考虑bigtable的各种优点。Metastore可基于分布式数据库（newsql），回想一下bigtable，一个用户的文件散落在多个tabletserver上，允许用户跨tabletserver rename操作，所以需要分布式事务完成上述保证，出于对DFS改进，我们把目录树持久化
